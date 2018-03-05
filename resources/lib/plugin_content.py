@@ -64,6 +64,10 @@ class PluginContent():
 
     def get_authkey(self):
         '''get authentication key'''
+        count = 0
+        while count < 60 and self.win.getProperty("spotify-token-pending") != "false":
+            count += 1
+            xbmc.sleep(1000)
         auth_token = self.win.getProperty("spotify-token").decode("utf-8")
         if not auth_token:
             dialog = xbmcgui.Dialog()

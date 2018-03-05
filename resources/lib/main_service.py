@@ -130,11 +130,13 @@ class MainService:
         if username and password:
             self.spotty.username = username
             self.spotty.password = password
+            xbmc.executebuiltin("SetProperty(spotify-token-pending, %s, Home)" % 'true')
             auth_token = get_token(self.spotty)
         if auth_token:
             log_msg("Retrieved auth token")
             # store authtoken as window prop for easy access by plugin entry
             xbmc.executebuiltin("SetProperty(spotify-token, %s, Home)" % auth_token['access_token'])
+        xbmc.executebuiltin("SetProperty(spotify-token-pending, %s, Home)" % 'false')
         return auth_token
 
     def switch_user(self):
