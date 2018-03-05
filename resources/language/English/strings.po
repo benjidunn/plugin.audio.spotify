@@ -271,3 +271,23 @@ msgstr ""
 msgctxt "#11064"
 msgid "Use Kodi OSD for playback on (remote) Spotify Connect device"
 msgstr ""
+
+msgctxt "#11065"
+msgid "Actions"
+msgstr ""
+
+msgctxt "#11066"
+msgid "Default Album Action"
+msgstr ""
+
+msgctxt "#11067"
+msgid "Shuffle Album Tracks"
+msgstr ""
+
+msgctxt "#11068"
+msgid "Default Playlist Action"
+msgstr ""
+
+msgctxt "#11069"
+msgid "Shuffle Playlist Tracks"
+msgstr ""

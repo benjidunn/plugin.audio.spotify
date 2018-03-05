@@ -20,6 +20,13 @@
         <setting id="password5" type="text" option="hidden" label="11002" default="" visible="eq(-14,true)"/>
 	</category>
     
+    <category label="11065">
+	<setting id="albumAction" type="enum" label="11066" default="0" lvalues="1024|22083"/>
+	<setting id="albumShuffle" type="bool" label="11067" default="false"/>
+        <setting id="playlistAction" type="enum" label="11068" default="0" lvalues="1024|22083"/>
+	<setting id="playlistShuffle" type="bool" label="11069" default="false"/>
+    </category>
+    
     <category label="11054" visible="!IsEmpty(Window(Home).Property(spotify.supportsplayback))">
         <setting id="connect_player" type="bool" label="11036" default="false" visible="!IsEmpty(Window(Home).Property(spotify.supportsplayback))"/>
        <!--  <setting id="enable_cache" type="bool" label="11051" default="true" visible="!IsEmpty(Window(Home).Property(spotify.supportsplayback))"/>

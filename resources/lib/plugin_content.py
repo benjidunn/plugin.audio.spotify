@@ -5,6 +5,7 @@ import urlparse
 import urllib
 import threading
 import thread
+import random
 import time
 import spotipy
 import xbmc
@@ -110,6 +111,10 @@ class PluginContent():
         self.defaultview_playlists = self.addon.getSetting("playlistDefaultView")
         self.defaultview_albums = self.addon.getSetting("albumDefaultView")
         self.defaultview_category = self.addon.getSetting("categoryDefaultView")
+        self.album_action = "play" if self.addon.getSetting("albumAction") == "1" else "browse"
+        self.album_shuffle = self.addon.getSetting("albumShuffle") == "true"
+        self.playlist_action = "play" if self.addon.getSetting("playlistAction") == "1" else "browse"
+        self.playlist_shuffle = self.addon.getSetting("playlistShuffle") == "true"
 
     def cache_checksum(self, opt_value=None):
         '''simple cache checksum based on a few most important values'''
@@ -552,6 +557,8 @@ class PluginContent():
                 count += 50
             album_tracks = self.prepare_track_listitems(trackids, albumdetails=album)
             self.cache.set(cachestr, album_tracks, checksum=checksum)
+        if self.album_shuffle and album_tracks:
+            random.shuffle(album_tracks)
         return album_tracks
 
     def browse_album(self):
@@ -623,6 +630,8 @@ class PluginContent():
             playlistdetails["tracks"]["items"] = self.prepare_track_listitems(
                 tracks=playlistdetails["tracks"]["items"], playlistdetails=playlist)
             self.cache.set(cachestr, playlistdetails, checksum=checksum)
+        if self.playlist_shuffle and playlistdetails:
+            random.shuffle(playlistdetails["tracks"]["items"])
         return playlistdetails
 
     def browse_playlist(self):
@@ -1031,7 +1040,7 @@ class PluginContent():
             else:
                 item['thumb'] = "DefaultMusicAlbums.png"
 
-            item['url'] = self.build_url({'action': 'browse_album', 'albumid': item['id']})
+            item['url'] = self.build_url({'action': self.album_action + '_album', 'albumid': item['id']})
 
             artists = []
             for artist in item['artists']:
@@ -1100,11 +1109,16 @@ class PluginContent():
                 "rating": item["rating"]
             }
             li.setInfo(type="Music", infoLabels=infolabels)
+            li.addContextMenuItems(item["contextitems"], True)
             li.setArt({"thumb": item['thumb']})
             li.setProperty('do_not_analyze', 'true')
-            li.setProperty('IsPlayable', 'false')
-            li.addContextMenuItems(item["contextitems"], True)
-            xbmcplugin.addDirectoryItem(handle=self.addon_handle, url=item["url"], listitem=li, isFolder=True)
+
+            if self.playlist_action == "play":
+#               li.setProperty('IsPlayable', 'true')
+                xbmcplugin.addDirectoryItem(handle=self.addon_handle, url=item["url"], listitem=li, isFolder=False)
+            else:
+                li.setProperty('IsPlayable', 'false')
+                xbmcplugin.addDirectoryItem(handle=self.addon_handle, url=item["url"], listitem=li, isFolder=True)
 
     def prepare_artist_listitems(self, artists, isFollowed=False):
 
@@ -1194,7 +1208,7 @@ class PluginContent():
                 item["thumb"] = "DefaultMusicAlbums.png"
 
             item['url'] = self.build_url(
-                {'action': 'browse_playlist', 'playlistid': item['id'],
+                {'action': self.playlist_action + '_playlist', 'playlistid': item['id'],
                  'ownerid': item['owner']['id']})
 
             contextitems = []
@@ -1232,12 +1246,16 @@ class PluginContent():
                 li = xbmcgui.ListItem(item["name"], path=item['url'], offscreen=True)
             else:
                 li = xbmcgui.ListItem(item["name"], path=item['url'])
-            li.setProperty('do_not_analyze', 'true')
-            li.setProperty('IsPlayable', 'false')
-
             li.addContextMenuItems(item["contextitems"], True)
             li.setArt({"fanart": "special://home/addons/plugin.audio.spotify/fanart.jpg", "thumb": item['thumb']})
-            xbmcplugin.addDirectoryItem(handle=self.addon_handle, url=item["url"], listitem=li, isFolder=True)
+            li.setProperty('do_not_analyze', 'true')
+
+            if self.playlist_action == "play":
+#               li.setProperty('IsPlayable', 'true')
+                xbmcplugin.addDirectoryItem(handle=self.addon_handle, url=item["url"], listitem=li, isFolder=False)
+            else:
+                li.setProperty('IsPlayable', 'false')
+                xbmcplugin.addDirectoryItem(handle=self.addon_handle, url=item["url"], listitem=li, isFolder=True)
 
     def browse_artistalbums(self):
         xbmcplugin.setContent(self.addon_handle, "albums")
